@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)https://blm-fsmvu.github.io/305/work/CW6.html -->
+<html lang="en-US">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width">
+  <link rel="icon" href="https://blm-fsmvu.github.io/305/images/icon192.png">
+  <title>Event listeners </title>
+
+  <style>
+    /* CSS comment */
+    body {
+      max-width: 440px;
+    }
+
+    #url {
+      width: 190px;
+    }
+
+    span,
+    #url {
+      color: blue;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HTML comment: Modify all items marked xxx -->
+
+  <h2 id="title" title="Event listeners">Event listeners</h2>
+  <p title="Battery Status">
+    <b>Battery Status:</b><br> <span id="chargeState"> Charging...</span> <br>
+    <span id="level"> defaultlevelStatus</span><br>
+    <span id="time"> 0</span>
+  </p>
+  <p title="Online Status">
+    <b> Online Status:</b><br><span id="OnlineStatus"></span>
+  </p>
+  <p title="Keyboard">
+    <b>Keyboard:</b><br><span id="keyboard"></span>
+  </p>
+
+  <hr>
+  <b>Sample code</b>
+  <pre
+    id="sample">function init() {<br>    plat.innerText = navigator.platform<br>    navigator.geolocation.getCurrentPosition(p =&gt; <br>      loc.innerText = p.coords.latitude.toFixed(4)<br>                +', '+p.coords.longitude.toFixed(4)<br>    )<br>    navigator.getBattery().then(b =&gt; <br>      level.innerText = 100*b.level+'%'<br>    )<br>    check()<br>}<br>function check() {<br>    fetch(url.value).then(r =&gt; <br>      resp.innerText = r.ok? 'OK' : 'Not found'<br>    ).catch(e =&gt; resp.innerText = e)<br>}</pre>
+  <hr>
+
+  <script>
+    "use strict";
+
+
+    function check() {
+      fetch(url.value).then(r =>
+        resp.innerText = r.ok ? 'OK' : 'Not found'
+      ).catch(e => resp.innerText = e)
+    }
+    function updateOnlineStatus() {
+      if (navigator.onLine) {
+        document.getElementById("OnlineStatus").innerText = "online"
+      } else {
+        document.getElementById("OnlineStatus").innerText = "offline"
+      }
+    }
+
+    function init() {
+
+
+      navigator.getBattery().then(b => {
+        level.innerText = (100 * b.level).toFixed(0) + '%'
+
+        b.onchargingchange = ()=> chargeState.innerText = 
+        (b.charging)?"Charging...":"Discharging..."
+
+        b.onlevelchange = () => {
+          level.innerText = (100 * b.level).toFixed(0) + '%'
+          let i = b.chargingTime / 3600;
+          time.innerText = i.toFixed(2) + " remaining";
+
+        }
+        
+        
+          
+        
+      });
+
+      
+
+
+      window.addEventListener("online", updateOnlineStatus());
+      window.addEventListener("offline", updateOnlineStatus());
+
+      window.addEventListener("keydown", () => { document.getElementById("keyboard").innerText = event.key });
+      window.addEventListener("keyup", () => { document.getElementById("keyboard").innerText = event.key });
+
+
+      check();
+    }
+
+
+    title.innerText = document.title;
+    sample.innerText = init + '\n' + check;
+    init();
+
+  </script>
+
+
+
+</body>
+
+</html>

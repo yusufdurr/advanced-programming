@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Fetch And Animations</title>
+
+    <style>
+        div :not(#buttons) {
+            align-items: center;
+            float: left;
+            clear: left;
+        }
+
+        #buttons {
+            align-items: center;
+            float: left;
+            clear: left;
+            border-width: 2px;
+            border-style: solid;
+            border-color: black;
+            display: flex;
+            justify-content: space-between;
+            margin: 0px auto;
+            background: lightgrey;
+            padding: 10px;
+        }
+
+        button:not(#runBackward),
+        p {
+            margin-right: 40px;
+        }
+
+        button {
+            padding: 10px 20px 10px 20px;
+            background-color: lightgoldenrodyellow;
+        }
+
+        button:hover:not(:disabled) {
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
+        #canvas {
+            float: left;
+            clear: left;
+            border-width: 2px;
+            border-style: solid;
+            border-color: black;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="general">
+        <h2 id="state">Running ...</h2>
+        <canvas id='canvas'></canvas>
+        <div id="buttons">
+            <button id="startOver" onclick="startOver()"> Start Over </button>
+            <button id="moveLeft" onclick="moveLeft()"> Left </button>
+            <button id="moveRight" onclick="moveRight()"> Right </button>
+            <button id='pause' onclick="pause()"> Pause</button>
+            <button id='next' disabled="true" onclick="next()"> Next </button>
+            <button id='prev' disabled="true" onclick="prev()"> Prev </button>
+            <button id="runBackward" onclick="runBackward()"> Run Backward </button>
+        </div>
+    </div>
+
+
+
+    <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script> -->
+    <script>
+
+        const spriteWidth = 864;
+        const spriteHeight = 280;
+        const canvasWidth = 1000;
+        const canvasHeight = 300;
+        const rows = 2;
+        const cols = 8;
+        const width = spriteWidth / cols;
+        const height = spriteHeight / rows;
+
+        var trackRight = 0;
+        var trackLeft = 1;
+
+
+        var curFrame = 0;
+        var frameCount = 8;
+
+        var x = -120;
+        var y = 150;
+
+        var srcX;
+        var srcY;
+
+        //pause
+        var paused = false;
+        var pauseCount = 0;
+
+        // run backward
+        var runBackwardCount = 1;
+        var isRunningBackward;
+
+        // left or right
+        var left = false;
+        var right = true;
+
+        // speed
+        var speed = 20;
+
+        // canvas 1 
+        var canvas = document.getElementById('canvas');
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        var ctx = canvas.getContext("2d");
+        var character = new Image();
+
+        //character.src = "character.jpg"
+
+        const imageUrl = "https://yusufdur.github.io/advanced-programming-2022/HW/HW3/character.jpg";
+        fetch(imageUrl)
+            .then(response => response.blob())
+            .then(imageBlob => {
+                // Then create a local URL for that image and print it 
+                const imageObjectURL = URL.createObjectURL(imageBlob);
+                // set image.src
+
+                character.src = imageObjectURL
+            });
+
+
+        function updateFrame() {
+
+            curFrame = ++curFrame % frameCount;
+            console.log(curFrame);
+            srcX = curFrame * width;
+            console.log(srcX)
+            ctx.clearRect(x, y, width, height);
+
+            let fazlalık = 100
+
+            if (right && x == (canvasWidth - fazlalık)) x = -fazlalık
+            if (left && x == -fazlalık) x = canvasWidth
+
+            if (left && x > -fazlalık) {
+                srcY = trackLeft * height;
+                x -= speed;
+            }
+            if (right && x < canvasWidth) {
+                srcY = (trackRight * height);
+                x += speed;
+            }
+
+        }
+
+        function prev_updateFrame() { 
+
+            if (curFrame != 0 ? curFrame = --curFrame : curFrame = frameCount - 1) // bug
+            console.log(curFrame);
+            srcX = (curFrame * width);
+            console.log(srcX)
+            ctx.clearRect(x, y, width, height);
+
+            let fazlalık = 100
+
+            if (right && x == (canvasWidth - fazlalık)) x = -fazlalık
+            if (left && x == -fazlalık) x = canvasWidth
+
+            if (left && x > -fazlalık) {
+                srcY = trackLeft * height;
+                x += speed;
+            }
+            if (right && x < canvasWidth) {
+                srcY = (trackRight * height);
+                x -= speed;
+            }
+
+        }
+        function draw() {
+            if (!paused) {
+                updateFrame();
+                ctx.drawImage(character, srcX, srcY, width, height, x, y, width, height);
+            }
+        }
+
+
+        ////////////////////////////////////////    JQUERY IS NOT WOTKİNG ON GITHUB PAGES /////////////////////////////////////////////////////
+
+        // $('#moveLeft').on('click', function () {
+        //     left = true;
+        //     right = false;
+        // });
+
+        // $('#moveRight').on('click', function () {
+        //     left = false;
+        //     right = true;
+        // });
+
+        // $('#starOver').on('click', function () {
+        //     location.reload()
+        // });
+
+        // // pause the animation on #pause click
+        // $('#pause').on('click', async function () {
+        //     pauseCount++
+        //     if (pauseCount % 2 == 1) {
+        //         paused = true
+        //         $('#next').removeAttr('disabled');
+        //         $('#prev').removeAttr('disabled');
+        //         document.getElementById("state").textContent = "Paused !"
+        //     } else {
+        //         paused = false
+        //         $('#next').attr('disabled', 'true');
+        //         $('#prev').attr('disabled', 'true');
+        //         if (isRunningBackward ? document.getElementById("state").textContent = "Running backward !" : document.getElementById("state").textContent = "Running ...");
+        //     };
+        // });
+
+        // //run backward
+        // $('#runBackward').on('click', function () {
+        //     runBackwardCount++
+        //     if (runBackwardCount % 2 == 0) {
+        //         isRunningBackward = true;
+        //         trackRight = 1
+        //         trackLeft = 0
+        //         if (paused ? document.getElementById("state").textContent = "Paused !" : document.getElementById("state").textContent = "Running Backward !");
+        //     } else {
+        //         isRunningBackward = false;
+        //         trackRight = 0
+        //         trackLeft = 1
+        //         if (paused ? document.getElementById("state").textContent = "Paused !" : document.getElementById("state").textContent = "Running ...");
+        //     }
+        // });
+
+        // $('#next').on('click', function () {
+        //     ctx2.clearRect(0, 0, canvas.width, canvas.height);
+        //     if (isRunningBackward ? srcX2 = ((curFrame - 1) % frameCount) * width : srcX2 = ((curFrame + 1) % frameCount) * width);
+        //     ctx2.drawImage(character, srcX2, srcY, width, height, x, y, width, height);
+        // });
+        // $('#prev').on('click', function () {
+        //     ctx2.clearRect(0, 0, canvas.width, canvas.height);
+        //     if (isRunningBackward ? srcX2 = ((curFrame + 1) % frameCount) * width : srcX2 = ((curFrame - 1) % frameCount) * width);
+        //     ctx2.drawImage(character, srcX2, srcY, width, height, x, y, width, height);
+        // });
+
+
+
+        function moveLeft() {
+            left = true;
+            right = false;
+        }
+        function moveRight() {
+            left = false;
+            right = true;
+        }
+        function startOver() {
+            location.reload()
+        }
+        function pause() {
+            pauseCount++
+            if (pauseCount % 2 == 1) {
+                paused = true
+                // $('#next').removeAttr('disabled');
+                // $('#prev').removeAttr('disabled');
+                document.getElementById("next").removeAttribute("disabled")
+                document.getElementById("prev").removeAttribute("disabled")
+                document.getElementById("state").textContent = "Paused !"
+            } else {
+                paused = false
+                // $('#next').attr('disabled', 'true');
+                // $('#prev').attr('disabled', 'true');
+                document.getElementById("next").setAttribute("disabled", true)
+                document.getElementById("prev").setAttribute("disabled", true)
+                if (isRunningBackward ? document.getElementById("state").textContent = "Running backward !" : document.getElementById("state").textContent = "Running ...");
+            };
+        }
+        function runBackward() {
+            runBackwardCount++
+            if (runBackwardCount % 2 == 0) {
+                isRunningBackward = true;
+                trackRight = 1
+                trackLeft = 0
+                if (paused ? document.getElementById("state").textContent = "Paused !" : document.getElementById("state").textContent = "Running Backward !");
+            } else {
+                isRunningBackward = false;
+                trackRight = 0
+                trackLeft = 1
+                if (paused ? document.getElementById("state").textContent = "Paused !" : document.getElementById("state").textContent = "Running ...");
+            }
+        }
+        function prev() {
+            // ctx2.clearRect(0, 0, canvas.width, canvas.height);
+            // if (isRunningBackward ? srcX2 = ((curFrame + 1) % frameCount) * width : srcX2 = ((curFrame - 1) % frameCount) * width);
+            // ctx2.drawImage(character, srcX2, srcY, width, height, x, y, width, height);
+            // ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // if (isRunningBackward ? srcX = ((curFrame + 1) % frameCount) * width : srcX = ((curFrame - 1) % frameCount) * width);
+            // ctx2.drawImage(character, srcX, srcY, width, height, x, y, width, height);
+            
+            prev_updateFrame();
+            ctx.drawImage(character, srcX, srcY, width, height, x, y, width, height);
+        }
+        function next() {
+            // ctx2.clearRect(0, 0, canvas.width, canvas.height);
+            // if (isRunningBackward ? srcX2 = ((curFrame - 1) % frameCount) * width : srcX2 = ((curFrame + 1) % frameCount) * width);
+            // ctx2.drawImage(character, srcX2, srcY, width, height, x, y, width, height);
+
+            updateFrame();
+            ctx.drawImage(character, srcX, srcY, width, height, x, y, width, height);
+        }
+
+
+        // main code
+        setInterval(draw, 100);
+
+    </script>
+</body>
+
+</html>
