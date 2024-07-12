@@ -1,1 +1,1 @@
-# advanced-programming-2022
+# advanced-programming-lecture-2022
